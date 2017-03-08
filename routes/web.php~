@@ -12,11 +12,8 @@
 */
 
 $app->get('/', function () use ($app) {
-			
     return $app->version();
 });
-
-
 
 //统一的注册:
 
@@ -29,19 +26,15 @@ $app->get("/Douyu/apiCallBack", "Api\\Douyu@apiCallBackAction");
 
 $app->get("/CallBack/apiCallBack","Api\\Today@apiCallBackAction");
 
-//畅思 广告注册
-
-$app->get("/ChangSi/apiCallBack","Api\\ChangSi@apiCallBackAction");
-
 //wead的注册接口
 
 $app->get("/WeAd/apiCallBack","Api\\WeAD@apiCallBackAction");
 
+//畅思 广告注册
+
+$app->get("/ChangSi/apiCallBack","Api\\ChangSi@apiCallBackAction");
+
 // 广点通的注册接口
-$app->get("Gdt/apiCallBack","Api\\Gdt@apiCallBackAction");  
-
-
-
 
 
 

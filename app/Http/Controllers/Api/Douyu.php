@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 class Douyu extends Controller{
 
     public function apiCallBackAction(Request $request){
+		
         $type = strtolower( $request->input('os'));
         $gameid = $request->input("appid");
         $backurl = $request->input("callback_url");
