@@ -53,6 +53,17 @@ class  Adregister extends Controller{
             case self::DOUYU:
                     dispatch($data);
                 break;
+				
+			case self::GDT:
+					$url  = GDT::createurl(self::GDT,$gameid);
+					$dt['callback'] = $url;
+					dispatch(new \App\Jobs\Douyu($dt));
+					
+				breaks;
+			
+			//WEAD 广告平台
+			
+			
 
         }
 

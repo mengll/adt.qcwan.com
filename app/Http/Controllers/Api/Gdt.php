@@ -14,14 +14,16 @@ use Illuminate\Http\Request;
 class Gdt extends Controller{
 
     public function apiCallBackAction(Request $request){
-		
+
         $app_type = strtolower( $request->input('app_type'));
         $appid = $request->input("appid");
         $click_id = $request->input("click_id");
         $click_time = $request->input("click_time")?:time();
         $muid =  $request->input("muid");
         $gameid = $request->input("gameid");
-    
+		
+		$keydat = Keys::where("channel",self::GDT)->where("gameid"=>$gameid)->first();
+		
         if(!preg_match("/^\d+$/",$gameid)){
             return ["code"=>1,"msg"=>"请填写正确的信息2"];
         }
@@ -31,13 +33,13 @@ class Gdt extends Controller{
             return ["code"=>1,"msg"=>"请填写正确的信息3"];
         }
 
-        $dat = Channel::where("channel",self::DOUYU)->where("muid",$muid)->where("gameid",(int)$gameid)->first();
+        $dat = Channel::where("channel",self::Gdt)->where("muid",$muid)->where("gameid",(int)$gameid)->first();
 
         if(!empty($dat)){
 
             return ["code"=>1,"msg"=>"The messages had exists!"];
         }
-
+		
         $channel = new Channel;
         $channel->type 			= $app_type;
         $channel->gameid 		= (int) $gameid;
@@ -54,7 +56,7 @@ class Gdt extends Controller{
     }
 
     public static function register($url){
-        return static::sendrequest($url,false,[]);
+        return static::sendrequest($url,false,[]); //返回当前的结果
     }
 	
 	
@@ -69,7 +71,7 @@ class Gdt extends Controller{
      * @param  [type]     $muid        [description]  用户设备的 IMEI 或 idfa 进行 MD5SUM 以后得到的 32 位全小写 MD5 表现字符串
      * @return [type]                  [description]
      */
-    private function createUrl($app_id, $encrypt_key, $sign_key, $uid, $conv_type, $app_type, $click_id, $muid)
+    public static function createUrl($app_id, $encrypt_key, $sign_key, $uid, $conv_type, $app_type, $click_id, $muid)
     {
         $conv_time    = time();
         $url          = 'http://t.gdt.qq.com/conv/app/' . $app_id . '/conv?';
@@ -84,7 +86,7 @@ class Gdt extends Controller{
         //base_data
         $base_data    = $query_string . "&sign=" . urlencode($signature);
         //通过base_data和enctype_type进行异或
-        $data         = urlencode($this->SimpleXor($base_data, $encrypt_key));
+        $data         = urlencode(self::SimpleXor($base_data, $encrypt_key));
         //组装
         $attachment   = "conv_type=" . urlencode($conv_type) . '&app_type=' . urlencode($app_type) . '&advertiser_id=' . urlencode($uid);
         //最终的拼接
@@ -98,7 +100,7 @@ class Gdt extends Controller{
      * @param  [type]     $key  [description]
      * @return [type]           [description]
      */
-    private function SimpleXor($data,$key)
+    public static function SimpleXor($data,$key)
     {
         $str   = '';
         $len   = strlen($data);
@@ -110,8 +112,14 @@ class Gdt extends Controller{
         return base64_encode($str);
     }
 	
-	
-	
+	public static  function gdturl($muid,$gameid){
+		//查询当前的数据
+		$dat = Channel::where("muid",$muid)->where("gameid",(int)$gameid)->first();
+		if(!empty($dat)){
+			return self::createUrl($dat['appid'],$keydat['encrypt_key'],$keydat['sign_key'],$dat['advertiser_id'],'MOBILEAPP_ACTIVITE',strtoupper($dat['app_type']),$dat['click_id'],$dat['muid']);
+		}
+		return false;
+	}
 
-
+	
 }

@@ -22,7 +22,11 @@ class Channel  extends Eloquent{
                 "1223"  => "05e81aca-b999-4eb4-bc9b-0666d3d47fb5",
                 "1127"  => "261045c7-1c1e-47da-9a92-07d3e957b742"
             ],
-            "gdt"=>[]
+            "gdt"=>["129"=>[
+					"encrypt_key" 	=> "sadsad",
+					"sign_key"      =>"asdasdsda"	
+					]
+			]
         ];
         return isset($data[$channel][$key])?$data[$channel][$key]:0;
     }

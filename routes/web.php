@@ -40,6 +40,43 @@ $app->get("/WeAd/apiCallBack","Api\\WeAD@apiCallBackAction");
 // 广点通的注册接口
 $app->get("Gdt/apiCallBack","Api\\Gdt@apiCallBackAction");  
 
+$app->get("register",function() use($app){
+	
+	$su = function(){
+			for($i=0;$i<10;$i++){
+				yield "name".$i;
+			}
+	};
+
+	//演策
+	$timess = function(){
+		sleep(rand(1,5));
+	};
+	
+	
+	$zhushou = function(){
+		while(true){
+			$ret = yield ;
+			echo $ret;
+			sleep(1);
+		}
+	};
+	
+	$zhu =  $zhushou();
+
+	for($j=0;$j<10;$j++){
+		$zhu->send("fu_".$j);
+	}
+	
+	foreach($su() as $da){
+			var_dump($da);
+	}
+	
+		
+});
+
+
+
 
 
 
