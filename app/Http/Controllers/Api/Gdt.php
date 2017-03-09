@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 class Gdt extends Controller{
 
     public function apiCallBackAction(Request $request){
-
+	
         $app_type = strtolower( $request->input('app_type'));
         $appid = $request->input("appid");
         $click_id = $request->input("click_id");
@@ -22,15 +22,15 @@ class Gdt extends Controller{
         $muid =  $request->input("muid");
         $gameid = $request->input("gameid");
 		
-		$keydat = Keys::where("channel",self::GDT)->where("gameid"=>$gameid)->first();
+		//$keydat = Keys::where("channel",self::GDT)->where("gameid"=>$gameid)->first();
 		
         if(!preg_match("/^\d+$/",$gameid)){
-            return ["code"=>1,"msg"=>"请填写正确的信息2"];
+            return ["ret"=>1,"msg"=>"there no gameid please add the gameid paragram"];
         }
 
 
         if($muid ==''){
-            return ["code"=>1,"msg"=>"请填写正确的信息3"];
+            return ["ret"=>1,"msg"=>"muid not exists"];
         }
 
         $dat = Channel::where("channel",self::Gdt)->where("muid",$muid)->where("gameid",(int)$gameid)->first();
@@ -71,10 +71,10 @@ class Gdt extends Controller{
      * @param  [type]     $muid        [description]  用户设备的 IMEI 或 idfa 进行 MD5SUM 以后得到的 32 位全小写 MD5 表现字符串
      * @return [type]                  [description]
      */
-    public static function createUrl($app_id, $encrypt_key, $sign_key, $uid, $conv_type, $app_type, $click_id, $muid)
-    {
+    public static function createGdtUrl($app_id, $encrypt_key, $sign_key, $uid, $conv_type, $app_type, $click_id, $muid)
+    {		
         $conv_time    = time();
-        $url          = 'http://t.gdt.qq.com/conv/app/' . $app_id . '/conv?';
+        $url          = 'http://t.gdt.qq.com/conv/app/' . $app_id . '/conv?'; 
         //参数拼接
         $query_string = "click_id=" . urlencode($click_id) . "&muid=" . urlencode($muid) . "&conv_time=" . urlencode($conv_time);
         //urlencode转化
@@ -82,7 +82,7 @@ class Gdt extends Controller{
         //property
         $property     = $sign_key . '&GET&' . $encode_page;
         //md5加密
-        $signature    = strtolower(md5($property));
+        $signature    = md5($property);
         //base_data
         $base_data    = $query_string . "&sign=" . urlencode($signature);
         //通过base_data和enctype_type进行异或
@@ -91,6 +91,7 @@ class Gdt extends Controller{
         $attachment   = "conv_type=" . urlencode($conv_type) . '&app_type=' . urlencode($app_type) . '&advertiser_id=' . urlencode($uid);
         //最终的拼接
         $lastUrl      = $url . "v=" . $data . "&" . $attachment;
+	
         return $lastUrl;
     }
 
@@ -112,11 +113,14 @@ class Gdt extends Controller{
         return base64_encode($str);
     }
 	
-	public static  function gdturl($muid,$gameid){
+	public static  function gdturl($dat){
+		
 		//查询当前的数据
-		$dat = Channel::where("muid",$muid)->where("gameid",(int)$gameid)->first();
-		if(!empty($dat)){
-			return self::createUrl($dat['appid'],$keydat['encrypt_key'],$keydat['sign_key'],$dat['advertiser_id'],'MOBILEAPP_ACTIVITE',strtoupper($dat['app_type']),$dat['click_id'],$dat['muid']);
+		//$dat = Channel::where("muid",$muid)->where("gameid",(int)$gameid)->first(); //修改当前的操作的
+		if($dat){		
+		//  后期将key的数据转移到数据库中
+		    $keydat = Channel::getkeyV('gdt',(string)$dat['appid']);
+			return static::createGdtUrl($dat->appid,$keydat['encrypt_key'],$keydat['sign_key'],$keydat['advertiser_id'],'MOBILEAPP_ACTIVITE',strtoupper($dat->app_type),$dat->click_id,$dat->muid);
 		}
 		return false;
 	}

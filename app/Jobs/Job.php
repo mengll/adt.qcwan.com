@@ -35,7 +35,7 @@ abstract class Job implements ShouldQueue
         //curl_setopt($curlobj, CURLOPT_HTTPHEADER, array('Expect:'));
         // Cookie相关设置，这部分设置需要在所有会话开始之前设置
        // curl_setopt($curlobj, CURLOPT_COOKIESESSION, TRUE);
-        //curl_setopt($curlobj, CURLOPT_HEADER, 0);
+        curl_setopt($curlobj, CURLOPT_HEADER, 0);
 
         //curl_setopt($curlobj, CURLOPT_TIMEOUT_MS, 61000);
         curl_setopt($curlobj, CURLOPT_NOSIGNAL, 1);
@@ -48,7 +48,6 @@ abstract class Job implements ShouldQueue
         curl_setopt($curlobj, CURLOPT_HTTPHEADER, array("application/x-www-form-urlencoded; charset=utf-8"));
         $output=curl_exec($curlobj);	// 执行
         curl_close($curlobj);// 关闭cURL
-        var_dump($output);
         return $output;
     }
 

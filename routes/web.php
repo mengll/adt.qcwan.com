@@ -16,8 +16,6 @@ $app->get('/', function () use ($app) {
     return $app->version();
 });
 
-
-
 //统一的注册:
 
 $app->post('FeedBack/apiRegister',['middleware' => 'des','uses'=> 'Api\\Adregister@allRegisterAction']);

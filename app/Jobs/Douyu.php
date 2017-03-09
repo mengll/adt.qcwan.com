@@ -12,12 +12,13 @@ class Douyu extends Job
      * @return void
      */
     protected $data;
+	protected $callback;
 
-    public function __construct($dat)
+    public function __construct($dat,$callback)
     {
-        //
+	
         $this->data = $dat;
-        echo "run douyu";
+		$this->callback = $callback;
     }
 
 
@@ -28,11 +29,11 @@ class Douyu extends Job
      */
     public function handle()
     {
-
-        $url = $this->data['backurl'];
-        echo "run dou yu";
-        switch($this->data['channel']){
-            case Adregister::JRTT:
+	
+        //$url = $this->data->backurl;
+		//添加注册的请求的日志的处理，将包含数据的请求的时间的处理
+        switch($this->data->channel){
+            case Adregister::JRTT :
                     $back = $this->data['callback'];
                     $dt = $this->sendrequest($back);
                     if($dt){
@@ -45,7 +46,7 @@ class Douyu extends Job
                     }
 
                 break;
-            case Adregister::DOUYU:
+            case Adregister::DOUYU :
                 $dt = \App\Http\Controllers\Api\Douyu::register($url);
                 if($dt){
                     $dat = json_decode($dt);
@@ -56,20 +57,32 @@ class Douyu extends Job
                     }
                 }
                 break;
-            case Adregister::CHANGSI:
+            case Adregister::CHANGSI :
 
                 break;
 
-            case  Adregister::WEAD:
+            case  Adregister::WEAD :
 
                 break;
 
-            case Adregister::GDT:
-
+            case Adregister::GDT :
+		
+			    $dt = $this->sendrequest($this->callback);
+				
+				if($dt){
+					$gdtr = json_decode($dt,true);
+					
+					if(!$gdtr['ret']){
+						$this->data->status = 2;
+						$this->data->save();
+						echo "保存数据完成";
+					}
+					
+				}
+				
                 break;
-
         }
 
-
+		
     }
 }
