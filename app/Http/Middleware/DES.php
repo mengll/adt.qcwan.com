@@ -18,6 +18,7 @@ class DES
     {
 	
         $key = $request->input("key");
+		if($key =='') return ["code"=>1,"msg"=>"not exists key!"];
         $des = "f69fc0e2575511a7f69fc0e2";
         $dat = Crypt3DES::decrypt($key,$des);
         $dt = explode('&',$dat);
@@ -29,8 +30,7 @@ class DES
             }
         }
 	
-		$data = ["muid"=>"3b1317b5a25d5c1b04c1bc390e4927cb",'pid'=>223];
-		
+		$data = ["muid"=>"23fd7bcebcc040238653950416e319b5",'pid'=>121]; //测试数据写在此地
         $request->attributes->add(compact('data'));
 
         return $next($request);

@@ -16,13 +16,15 @@ class ChangSi extends Controller{
 
     public function apiCallBackAction(Request $request){
 
-        $type = strtolower($request->input('os'));
-        $gameid = $request->input("gameid");
-        $backurl = $request->input("callback");
-        $clicktime = $request->input("time")?:time();
+        $type 		= strtolower($request->input('os'));
+        $gameid 	= $request->input("gameid");
+        $backurl 	= $request->input("callback");
+        $clicktime  = $request->input("time")?:time();
 
-        $idfa =  $request->input("idfa");
-        $imei = $request->input('imei');
+        $idfa 		=  $request->input("idfa");
+        $imei 		= $request->input('imei');
+		$ip 		= $request->input('ip');
+		$clickid 	= $request->input('clickid');
 
         if(!preg_match("/^\d+$/",$gameid)){
             return ["code"=>1,"msg"=>"请填写正确的信息2"];
@@ -36,25 +38,25 @@ class ChangSi extends Controller{
             return ["code"=>1,"msg"=>"请填写正确的信息3"];
         }
 
-        $muid = isset($imei)?$imei:strtolower(md5($idfa));
+        $muid = isset($imei)?strtolower($imei):strtolower(md5($idfa));
 
-        $dat = Channel::where("channel",self::CHANGSI)->where("mid",crc32($muid))->where("gameid",(int)$gameid)->first();
+        $dat = Channel::where("channel",self::CHANGSI)->where("muid",$muid)->where("gameid",(int)$gameid)->first();
 
         if(!empty($dat)){
             return ["code"=>1,"msg"=>"The messages had exists!"];
         }
 
         $channel = new Channel;
-        $channel->type = $this->os[$type];
-        $channel->gameid = (int) $gameid;
-        $channel->muid = $muid;
-        $channel->mid = crc32($muid);
-
-        $channel->idfa = $idfa;
-        $channel->imei = $imei;
-        $channel->backurl = $backurl;
+        $channel->type 		= $this->os[$type];
+        $channel->gameid 	= (int) $gameid;
+        $channel->muid 		= $muid;
+        $channel->mid 		= crc32($muid);
+		$channel->ip   		= $ip;	
+        $channel->idfa 		= $idfa;
+        $channel->imei 		= $imei;
+        $channel->backurl 	= $backurl;
         $channel->clicktime = $clicktime;
-        $channel->channel = self::CHANGSI;
+        $channel->channel 	= self::CHANGSI;
 
         $re = $channel->save();
 

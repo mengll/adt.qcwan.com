@@ -14,7 +14,7 @@ class Today extends Controller{
 
     protected $os = array(0=>"android",1=>"ios",2=>"wp",3=>"others"); //设备类型
 
-    public function jrttCreateUrl($url,$key)
+    public static function jrttCreateUrl($url,$key)
     {
         // $d = $mo->getChannel('jrtt',$dat['appid']); //今日头条
         //查询当前的
@@ -81,4 +81,5 @@ class Today extends Controller{
         }
         return ["code"=>1,"msg"=>"失败"];
     }
+
 }

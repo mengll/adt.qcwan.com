@@ -32,12 +32,12 @@ abstract class Job implements ShouldQueue
         $curlobj = curl_init();			// 初始化
         curl_setopt($curlobj, CURLOPT_URL, $callback);		// 设置访问网页的URL
         curl_setopt($curlobj, CURLOPT_RETURNTRANSFER, true);			// 执行之后不直接打印出来
-        //curl_setopt($curlobj, CURLOPT_HTTPHEADER, array('Expect:'));
+        curl_setopt($curlobj, CURLOPT_HTTPHEADER, array('Expect:'));
         // Cookie相关设置，这部分设置需要在所有会话开始之前设置
        // curl_setopt($curlobj, CURLOPT_COOKIESESSION, TRUE);
         curl_setopt($curlobj, CURLOPT_HEADER, 0);
 
-        //curl_setopt($curlobj, CURLOPT_TIMEOUT_MS, 61000);
+        curl_setopt($curlobj, CURLOPT_TIMEOUT_MS, 1000);
         curl_setopt($curlobj, CURLOPT_NOSIGNAL, 1);
 
         if($ispost){

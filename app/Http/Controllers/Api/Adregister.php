@@ -24,16 +24,17 @@ class  Adregister extends Controller{
     public function allRegisterAction(Request $request){
         //echo "this is Allregister api";
         $dat   	= $request->attributes->get("data");
-        $gameid = $dat['pid'];
+        $gameid = isset($dat['pid'])?$dat['pid']:0;
         $imei   = isset($dat['imei'])?$dat['imei']:'';
         $rid    = isset($dat['rid']) ?$dat['rid']:0;
 		$idfa   = isset($dat['idfa'])?$dat['rid']:'';
         $register_time = isset($dat['time'])?$dat['time']:date("Y-m-d H:i:s");
-	
+		
+		if(!$gameid) return ["code"=>1,"msg"=>"please add the param gameid"];
+
         $mid = isset($imei)?strtolower(md5($imei)):strtolower(md5(urldecode($dat['idfa']))); //接收到的设备码
 		$mid = $dat['muid'];
-	
-        $data = Channel::where("muid",$mid)->where("gameid",$gameid)->first();
+        $data = Channel::where("muid",$mid)->where("gameid",(int)$gameid)->first();
 
 		if(!$data){
 		   return ["code"=>2,"msg"=>"您好没有相关的设备信息!no messages!"];
@@ -47,12 +48,11 @@ class  Adregister extends Controller{
             case self::JRTT:
                     $key = Channel::getkeyV('jrtt',$gameid);
                     $url = $this->jrttCreateUrl($data->backurl,$key);
-                    $data->callback = $url;
-                    dispatch(new \App\Jobs\Douyu($data)); //跑出当前处理
+                    dispatch(new \App\Jobs\Douyu($data,$url)); //跑出当前处理
                     return ["code"=>1,"msg"=>"今日头条","url"=>$url];
                 break;
             case self::DOUYU:
-                    dispatch($data);
+                    dispatch(new \App\Jobs\Douyu($data));
                 break;
 				
 			case self::GDT:
@@ -62,6 +62,9 @@ class  Adregister extends Controller{
 					{
 						dispatch(new \App\Jobs\Douyu($data,$url)); //发送当前处理
 					}
+				break;
+			case self::WEAD:
+				    dispatch(new \App\Jobs\Douyu($data));
 				break;
 			
 			//WEAD 广告平台

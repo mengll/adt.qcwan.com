@@ -14,13 +14,11 @@ class Douyu extends Job
     protected $data;
 	protected $callback;
 
-    public function __construct($dat,$callback)
+    public function __construct($dat,$callback='')
     {
-	
         $this->data = $dat;
 		$this->callback = $callback;
     }
-
 
     /**
      * Execute the job.
@@ -34,22 +32,22 @@ class Douyu extends Job
 		//添加注册的请求的日志的处理，将包含数据的请求的时间的处理
         switch($this->data->channel){
             case Adregister::JRTT :
-                    $back = $this->data['callback'];
-                    $dt = $this->sendrequest($back);
+                  	$dt = $this->sendrequest($this->callback);
                     if($dt){
-                        $da = json_decode($dt);
+                        $da = json_decode($dt,true);
                         if($da['ret'] == 0){
-                            $this->data->status =99;
+                            $this->data->status =2;
                             $this->data->registe_time = time();
                             $this->data->save();
+							echo "今日头条完成";
                         }
                     }
 
                 break;
             case Adregister::DOUYU :
-                $dt = \App\Http\Controllers\Api\Douyu::register($url);
+                $dt = \App\Http\Controllers\Api\Douyu::register($this->data->backurl);
                 if($dt){
-                    $dat = json_decode($dt);
+                    $dat = json_decode($dt,true);
                     if($dat['error'] == 0){
                         $this->data->status =Adregister::ACTIVE;
                         $this->data->registe_time = time();
@@ -62,27 +60,39 @@ class Douyu extends Job
                 break;
 
             case  Adregister::WEAD :
-
+					$url = $this->data->callback;
+					if(isset($this->data->imei) && $this->data->imei !=''){
+						$url += '&imei='.$this->data->imei;
+					}else{
+						$url += '&idfa='.$this->data->idfa;
+					}
+					
+				$dt = $this->sendrequest(urlencode($url));
+				if($dt){
+					$this->data->status = 2;
+					$this->data->save();
+					$this->data->registe_time = time();
+					echo "wead的编码的规范";
+				}
+					
                 break;
 
             case Adregister::GDT :
 		
 			    $dt = $this->sendrequest($this->callback);
-				
 				if($dt){
 					$gdtr = json_decode($dt,true);
 					
 					if(!$gdtr['ret']){
 						$this->data->status = 2;
 						$this->data->save();
+						$this->data->registe_time = time();
 						echo "保存数据完成";
 					}
-					
 				}
 				
                 break;
         }
 
-		
     }
 }
