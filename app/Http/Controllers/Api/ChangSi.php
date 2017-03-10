@@ -12,9 +12,10 @@ use App\Model\Channel;
 use Illuminate\Http\Request;
 
 class ChangSi extends Controller{
-    protected $os = array(0=>"android",1=>"ios",2=>"wp",3=>"others"); //设备类型
+    protected $os = array(0=>"android",1=>"ios",2=>"wp",3=>"others"); //mobile type
 
     public function apiCallBackAction(Request $request){
+		//优化 ￥request->all()  foreach() 的方式便利保存
 
         $type 		= strtolower($request->input('os'));
         $gameid 	= $request->input("gameid");
@@ -25,18 +26,23 @@ class ChangSi extends Controller{
         $imei 		= $request->input('imei');
 		$ip 		= $request->input('ip');
 		$clickid 	= $request->input('clickid');
+		$mac		= $request->input('mac');
 
         if(!preg_match("/^\d+$/",$gameid)){
-            return ["code"=>1,"msg"=>"请填写正确的信息2"];
+            return ["code"=>1,"msg"=>"gameid is null!"];
         }
 
         if($backurl == ''){
-            return ["code"=>1,"msg"=>"请填写正确信息1"];
+            return ["code"=>1,"msg"=>"backURL is null please input the value!"];
         }
 
         if($idfa =='' && $imei ==''){
-            return ["code"=>1,"msg"=>"请填写正确的信息3"];
+            return ["code"=>1,"msg"=>"hi !you loss the imei or idfa"];
         }
+		
+		if($mac ==''){
+			return ['code'=>1,"msg"=>"not exists MAC"];
+		}
 
         $muid = isset($imei)?strtolower($imei):strtolower(md5($idfa));
 
@@ -57,11 +63,11 @@ class ChangSi extends Controller{
         $channel->backurl 	= $backurl;
         $channel->clicktime = $clicktime;
         $channel->channel 	= self::CHANGSI;
-
+		$channel->mac 		= $mac;
         $re = $channel->save();
 
         if($re){
-            return ["code"=>0,"msg"=>"成功"];
+            return ["code"=>0,"msg"=>"sucess"];
         }
         return ["code"=>1,"msg"=>"失败"];
     }

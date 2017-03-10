@@ -59,10 +59,19 @@ class Douyu extends Job
                 }
                 break;
             case Adregister::CHANGSI :
-					$dt = $this->sendrequest($this->callback);
+					//compiler
+					$url  = $this->data->callback;
+					$url  += '&os='.$this->data->os;
+					$url  += '&idfa='.$this->data->idfa;
+					$url  += '&mac='.$this->data->mac;
+					$url  += '&imei='.$this->data->imei;
+					$url  += '&clickid='.$this->data->clickid;
+					
+					$dt = $this->sendrequest($url);
+					
                     if($dt){
                           $this->saveData();
-							echo "畅思完成";    
+							echo "畅思完成";    //
                     }
                 break;
 
