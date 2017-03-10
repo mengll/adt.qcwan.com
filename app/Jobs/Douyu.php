@@ -19,6 +19,13 @@ class Douyu extends Job
         $this->data = $dat;
 		$this->callback = $callback;
     }
+	
+	//保存数据
+	public function saveData(){
+		$this->data->status = 2;
+		$this->data->registe_time = time();
+		$this->data->save();
+	}
 
     /**
      * Execute the job.
@@ -36,9 +43,7 @@ class Douyu extends Job
                     if($dt){
                         $da = json_decode($dt,true);
                         if($da['ret'] == 0){
-                            $this->data->status =2;
-                            $this->data->registe_time = time();
-                            $this->data->save();
+							$this->saveData();
 							echo "今日头条完成";
                         }
                     }
@@ -49,14 +54,16 @@ class Douyu extends Job
                 if($dt){
                     $dat = json_decode($dt,true);
                     if($dat['error'] == 0){
-                        $this->data->status =Adregister::ACTIVE;
-                        $this->data->registe_time = time();
-                        $this->data->save();
+                       $this->saveData();
                     }
                 }
                 break;
             case Adregister::CHANGSI :
-
+					$dt = $this->sendrequest($this->callback);
+                    if($dt){
+                          $this->saveData();
+							echo "畅思完成";    
+                    }
                 break;
 
             case  Adregister::WEAD :
@@ -69,9 +76,7 @@ class Douyu extends Job
 					
 				$dt = $this->sendrequest(urlencode($url));
 				if($dt){
-					$this->data->status = 2;
-					$this->data->save();
-					$this->data->registe_time = time();
+					$this->saveData();
 					echo "wead的编码的规范";
 				}
 					
@@ -84,9 +89,7 @@ class Douyu extends Job
 					$gdtr = json_decode($dt,true);
 					
 					if(!$gdtr['ret']){
-						$this->data->status = 2;
-						$this->data->save();
-						$this->data->registe_time = time();
+						$this->saveData();
 						echo "保存数据完成";
 					}
 				}

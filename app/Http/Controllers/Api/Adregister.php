@@ -66,6 +66,9 @@ class  Adregister extends Controller{
 			case self::WEAD:
 				    dispatch(new \App\Jobs\Douyu($data));
 				break;
+			case self::CHANGSI :
+					dispatch(new \App\Jobs\Douyu($data));
+				break;
 			
 			//WEAD 广告平台
 		
